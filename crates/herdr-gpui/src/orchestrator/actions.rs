@@ -228,10 +228,17 @@ pub(super) fn place(target: &ConnectTarget) -> (Option<String>, Option<String>) 
     }
 }
 
+/// Herdr's `agent start` accepts at most this many characters. A name must
+/// start with a lowercase letter and contain only lowercase letters, digits,
+/// `-`, or `_`.
+const MAX_AGENT_NAME_LEN: usize = 32;
+
 /// A Herdr agent name no other application or run uses.
-fn agent_name() -> String {
+pub(super) fn agent_name() -> String {
+    const PREFIX: &str = "herdr-gpui-";
+    // A UUID's simple form is 32 hex digits, so this slice stays in range.
     let hex = uuid::Uuid::new_v4().simple().to_string();
-    format!("herdr-gpui-{}", &hex[..23])
+    format!("{PREFIX}{}", &hex[..MAX_AGENT_NAME_LEN - PREFIX.len()])
 }
 
 /// Where the new worktree goes: the host, its target, the workspace whose

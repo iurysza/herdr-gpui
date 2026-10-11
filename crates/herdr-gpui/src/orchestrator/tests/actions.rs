@@ -104,7 +104,10 @@ fn dispatch_creates_the_worktree_starts_the_agent_and_records_the_run() {
     assert!(calls[0].starts_with("worktree create --workspace w1 --branch 377-icons --base "));
     assert!(calls[0].ends_with(" --no-focus"));
     let name = calls[1].split(' ').nth(2).unwrap();
-    assert!(name.starts_with("herdr-gpui-") && name.len() == "herdr-gpui-".len() + 23);
+    assert!(
+        name.starts_with("herdr-gpui-") && name.len() <= 32,
+        "{name}"
+    );
     assert_eq!(
         calls[1],
         format!("agent start {name} --kind claude --pane p9 --timeout 90000")
@@ -255,6 +258,26 @@ fn a_chosen_model_reaches_the_agent_and_the_run() {
         .unwrap()
         .remove(0);
     assert_eq!(run.model.as_deref(), Some("claude-opus-5-5"));
+}
+
+#[test]
+fn agent_name_fits_herdr_limit_and_grammar() {
+    use crate::orchestrator::actions::agent_name;
+    let name = agent_name();
+    assert!(
+        (1..=32).contains(&name.len()),
+        "Herdr allows 1-32 characters, got {}: {name}",
+        name.len()
+    );
+    assert!(
+        name.starts_with(|c: char| c.is_ascii_lowercase()),
+        "{name} must start with a lowercase letter"
+    );
+    assert!(
+        name.chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || matches!(c, '-' | '_')),
+        "{name} must contain only lowercase letters, digits, '-' or '_'"
+    );
 }
 
 #[test]
