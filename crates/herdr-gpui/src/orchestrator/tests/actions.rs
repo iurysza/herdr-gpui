@@ -104,7 +104,10 @@ fn dispatch_creates_the_worktree_starts_the_agent_and_records_the_run() {
     assert!(calls[0].starts_with("worktree create --workspace w1 --branch 377-icons --base "));
     assert!(calls[0].ends_with(" --no-focus"));
     let name = calls[1].split(' ').nth(2).unwrap();
-    assert!(name.starts_with("herdr-gpui-") && name.len() <= 32, "{name}");
+    assert!(
+        name.starts_with("herdr-gpui-") && name.len() <= 32,
+        "{name}"
+    );
     assert_eq!(
         calls[1],
         format!("agent start {name} --kind claude --pane p9 --timeout 90000")
